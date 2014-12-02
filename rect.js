@@ -16,6 +16,10 @@ RECT.Rect = function(x, y, w, h){
      * A basic object to keep track of a sprite's location and dimensions.
      * Accepts four integers for x-location, y-location, width, and height.
      * 
+     * The four attributes of the rect can be accessed by name,
+     * or by index:
+     *     Rect.x=Rect[0]; Rect.y=Rect[1]; Rect.w=Rect[2]; Rect.h=Rect[3]
+     * 
      * Aside from the four standard attributes (x,y,w,h), the Rect also has
      * a number of psuedo attributes:
      *     left, top, right, bottom, 
@@ -35,14 +39,18 @@ RECT.Rect = function(x, y, w, h){
      * When getting a multi-element value the result is always a two element
      * array.
      */
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    RECT._makePropertyAlias(this, 'x', 'left');
-    RECT._makePropertyAlias(this, 'y', 'top');
-    RECT._makePropertyAlias(this, 'w', 'width');
-    RECT._makePropertyAlias(this, 'h', 'height');
+    Object.defineProperty(this, 0, {writable: true, value: x});
+    Object.defineProperty(this, 1, {writable: true, value: y});
+    Object.defineProperty(this, 2, {writable: true, value: w});
+    Object.defineProperty(this, 3, {writable: true, value: h});
+    RECT._makePropertyAlias(this, 0, 'x', true);
+    RECT._makePropertyAlias(this, 1, 'y', true);
+    RECT._makePropertyAlias(this, 2, 'w', true);
+    RECT._makePropertyAlias(this, 3, 'h', true);
+    RECT._makePropertyAlias(this, 0, 'left');
+    RECT._makePropertyAlias(this, 1, 'top');
+    RECT._makePropertyAlias(this, 2, 'width');
+    RECT._makePropertyAlias(this, 3, 'height');
     Object.defineProperty(this, 'right', {
         get: function(){return this.x+this.w;},
         set: function(value){this.x = value-this.w;}
@@ -60,15 +68,15 @@ RECT.Rect = function(x, y, w, h){
         set: function(value){this.y = value-Math.floor(this.h/2);}
     });
     RECT._makeMultiProperty(this, 'centerx', 'centery', 'center');
-    RECT._makeMultiProperty(this, 'x', 'y', 'topleft');
-    RECT._makeMultiProperty(this, 'right', 'y', 'topright');
-    RECT._makeMultiProperty(this, 'x', 'bottom', 'bottomleft');
+    RECT._makeMultiProperty(this, 0, 1, 'topleft');
+    RECT._makeMultiProperty(this, 'right', 1, 'topright');
+    RECT._makeMultiProperty(this, 0, 'bottom', 'bottomleft');
     RECT._makeMultiProperty(this, 'right', 'bottom', 'bottomright');
-    RECT._makeMultiProperty(this, 'centerx', 'y', 'midtop');
+    RECT._makeMultiProperty(this, 'centerx', 1, 'midtop');
     RECT._makeMultiProperty(this, 'centerx', 'bottom', 'midbottom');
-    RECT._makeMultiProperty(this, 'x', 'centery', 'midleft');
+    RECT._makeMultiProperty(this, 0, 'centery', 'midleft');
     RECT._makeMultiProperty(this, 'right', 'centery', 'midright');
-    RECT._makeMultiProperty(this, 'w', 'h', 'size', 'w', 'h');
+    RECT._makeMultiProperty(this, 2, 3, 'size', 'w', 'h');
 };
 
 RECT.Rect.prototype.collidePoint = function(x,y){
@@ -91,12 +99,15 @@ RECT.Rect.prototype.collideRect = function(other){
 
 
 //Property descriptor factories.
-RECT._makePropertyAlias = function(obj, original, alias){
+RECT._makePropertyAlias = function(obj, original, alias, enumerate){
     /*
      * Create a property obj.alias that gets and sets the property 
      * original.alias (eg set and get Rect.w using Rect.width).
      */
+    if(enumerate === undefined)
+        enumerate = false;
     Object.defineProperty(obj, alias, {
+        enumerable : enumerate,
         get: function(){return obj[original];},
         set: function(value){obj[original] = value;}
     });
