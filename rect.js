@@ -4,7 +4,11 @@
  */
 
 
-function Rect(x, y, w, h) {
+//Namespace
+RECT = {};
+
+
+RECT.Rect = function(x, y, w, h){
     /*
      * A basic object to keep track of a sprite's location and dimensions.
      * Accepts four integers for x-location, y-location, width, and height.
@@ -32,10 +36,10 @@ function Rect(x, y, w, h) {
     this.y = y;
     this.w = w;
     this.h = h;
-    _makePropertyAlias(this, 'x', 'left');
-    _makePropertyAlias(this, 'y', 'top');
-    _makePropertyAlias(this, 'w', 'width');
-    _makePropertyAlias(this, 'h', 'height');
+    RECT._makePropertyAlias(this, 'x', 'left');
+    RECT._makePropertyAlias(this, 'y', 'top');
+    RECT._makePropertyAlias(this, 'w', 'width');
+    RECT._makePropertyAlias(this, 'h', 'height');
     Object.defineProperty(this, 'right', {
         get: function(){return this.x+this.w;},
         set: function(value){this.x = value-this.w;}
@@ -52,19 +56,19 @@ function Rect(x, y, w, h) {
         get: function(){return this.y+Math.floor(this.h/2);},
         set: function(value){this.y = value-Math.floor(this.h/2);}
     });
-    _makeMultiProperty(this, 'centerx', 'centery', 'center');
-    _makeMultiProperty(this, 'x', 'y', 'topleft');
-    _makeMultiProperty(this, 'right', 'y', 'topright');
-    _makeMultiProperty(this, 'x', 'bottom', 'bottomleft');
-    _makeMultiProperty(this, 'right', 'bottom', 'bottomright');
-    _makeMultiProperty(this, 'centerx', 'y', 'midtop');
-    _makeMultiProperty(this, 'centerx', 'bottom', 'midbottom');
-    _makeMultiProperty(this, 'x', 'centery', 'midleft');
-    _makeMultiProperty(this, 'right', 'centery', 'midright');
-    _makeMultiProperty(this, 'w', 'h', 'size', 'w', 'h');
-}
+    RECT._makeMultiProperty(this, 'centerx', 'centery', 'center');
+    RECT._makeMultiProperty(this, 'x', 'y', 'topleft');
+    RECT._makeMultiProperty(this, 'right', 'y', 'topright');
+    RECT._makeMultiProperty(this, 'x', 'bottom', 'bottomleft');
+    RECT._makeMultiProperty(this, 'right', 'bottom', 'bottomright');
+    RECT._makeMultiProperty(this, 'centerx', 'y', 'midtop');
+    RECT._makeMultiProperty(this, 'centerx', 'bottom', 'midbottom');
+    RECT._makeMultiProperty(this, 'x', 'centery', 'midleft');
+    RECT._makeMultiProperty(this, 'right', 'centery', 'midright');
+    RECT._makeMultiProperty(this, 'w', 'h', 'size', 'w', 'h');
+};
 
-Rect.prototype.collidePoint = function(x,y){
+RECT.Rect.prototype.collidePoint = function(x,y){
     /* 
      * Check if a point (given by x and y) overlaps the rectangle.
      * The left and top edge are inclusive; the bottom and right edge are not.
@@ -73,8 +77,14 @@ Rect.prototype.collidePoint = function(x,y){
             (this.y <= y && y < this.y+this.h));
 };
 
+RECT.Rect.prototype.collideRect = function(other){
+    return !(other.x >= this.right || other.right <= this.x || 
+             other.y >= this.bottom || other.bottom <= this.y);
+};
 
-function _makePropertyAlias(obj, original, alias){
+
+//Property descriptor factories.
+RECT._makePropertyAlias = function(obj, original, alias){
     /*
      * Create a property obj.alias that gets and sets the property 
      * original.alias (eg set and get Rect.w using Rect.width).
@@ -83,17 +93,17 @@ function _makePropertyAlias(obj, original, alias){
         get: function(){return obj[original];},
         set: function(value){obj[original] = value;}
     });
-}
+};
 
 
-function _makeMultiProperty(obj, prop1, prop2, name, var1, var2){
+RECT._makeMultiProperty = function(obj, prop1, prop2, name, var1, var2){
     /*
      * Create a property name that gets and sets both obj.prop1 and obj.prop2.
      * var1 and var2 can be used to set the attribute needed when assigning
      * by an explicit object rather than a two element array. 
      * 
      * eg 
-     *     _makeMultiProperty(this, 'w', 'h', 'size', 'w', 'h');
+     *     RECT._makeMultiProperty(this, 'w', 'h', 'size', 'w', 'h');
      * creates a property obj.size which will get and set obj.w and obj.h.
      * It can be assigned to by either:
      *     obj.size = [10, 30]; // a two element array
@@ -117,4 +127,4 @@ function _makeMultiProperty(obj, prop1, prop2, name, var1, var2){
             }
         }
     });
-}
+};
