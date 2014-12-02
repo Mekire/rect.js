@@ -4,8 +4,11 @@
  */
 
 
-//Namespace
-RECT = {};
+//Namespace check and creation.
+if(typeof RECT !== 'undefined')
+    alert("Namespace collision!");
+else
+    RECT = {};
 
 
 RECT.Rect = function(x, y, w, h){
@@ -78,6 +81,10 @@ RECT.Rect.prototype.collidePoint = function(x,y){
 };
 
 RECT.Rect.prototype.collideRect = function(other){
+    /*
+     * Detect collisions between calling Rect and other (also a Rect instance).
+     * Shared edges are not considered colliding.
+     */
     return !(other.x >= this.right || other.right <= this.x || 
              other.y >= this.bottom || other.bottom <= this.y);
 };
@@ -99,16 +106,16 @@ RECT._makePropertyAlias = function(obj, original, alias){
 RECT._makeMultiProperty = function(obj, prop1, prop2, name, var1, var2){
     /*
      * Create a property name that gets and sets both obj.prop1 and obj.prop2.
-     * var1 and var2 can be used to set the attribute needed when assigning
+     * var1 and var2 can be used to set the attributes needed when assigning
      * by an explicit object rather than a two element array. 
      * 
      * eg 
      *     RECT._makeMultiProperty(this, 'w', 'h', 'size', 'w', 'h');
      * creates a property obj.size which will get and set obj.w and obj.h.
      * It can be assigned to by either:
-     *     obj.size = [10, 30]; // a two element array
+     *     obj.size = [10, 30]; // two element array
      * or
-     *     obj.size = {w: 10, h: 30} // an object with attributes var1 and var2
+     *     obj.size = {w: 10, h: 30}; // object with attributes var1 and var2
      */
     if(var1 === undefined)
         var1 = "x";
