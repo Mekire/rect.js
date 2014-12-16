@@ -8,7 +8,7 @@
 if(typeof RECT !== 'undefined')
     alert("Namespace collision!");
 else
-    RECT = {};
+    var RECT = {};
 
 
 RECT.Rect = function(x, y, w, h){
@@ -153,6 +153,33 @@ RECT.Rect.prototype.clampIP = function(other){
     this.bottom = Math.min(this.bottom, other.bottom);
     if(!other.containsRect(this))
         this.center = other.center;
+};
+
+RECT.Rect.prototype.clip = function(other){
+    /*
+     * Return a new Rect with location and dimensions of the intersection
+     * between this and other.
+     */
+    var rect = new RECT.Rect(this.x, this.y, this.w, this.h);
+    rect.clipIP(other);
+    return rect;
+};
+
+RECT.Rect.prototype.clipIP = function(other){
+    /*
+     * Alter Rect inplace to the dimensions of the intersection
+     * between this and other.
+     */
+    var x = Math.max(this.x, other.x);
+    var w = Math.min(this.right, other.right)-x;
+    var y = Math.max(this.y, other.y);
+    var h = Math.min(this.bottom, other.bottom)-y;
+    if(w<=0 || h<=0)
+        this.size = [0,0];
+    else {
+        this.topleft = [x,y];
+        this.size = [w,h];
+    }
 };
 
 RECT.Rect.prototype.collidePoint = function(x, y){
